@@ -220,21 +220,35 @@ func (m AppModel) View() string {
 	case screenMenu:
 		items := []string{"Timer (15s)", "Words (custom)"}
 		var b strings.Builder
-		b.WriteString("Select mode:\n\n")
+		// main text colored
+		b.WriteString(AccentBold)
+		b.WriteString("Select mode:")
+		b.WriteString(AnsiReset)
+		b.WriteString("\n\n")
 		for i, it := range items {
 			prefix := "  "
 			if i == m.sel {
 				prefix = "> "
 			}
-			b.WriteString(prefix)
-			b.WriteString(it)
+			if i == m.sel {
+				b.WriteString(AccentBold)
+				b.WriteString(prefix)
+				b.WriteString(it)
+				b.WriteString(AnsiReset)
+			} else {
+				b.WriteString(prefix)
+				b.WriteString(it)
+			}
 			b.WriteByte('\n')
 		}
-		b.WriteString("\n↑/↓ or j/k to move, Enter to select, q to quit")
+		b.WriteString("\n")
+		b.WriteString(AnsiDim)
+		b.WriteString("↑/↓ or j/k to move, Enter to select, q to quit")
+		b.WriteString(AnsiReset)
 		return center(m.width, m.height, b.String())
 
 	case screenInputWords:
-		prompt := fmt.Sprintf("How many words? %s", m.input)
+		prompt := fmt.Sprintf("%sHow many words?%s %s", AccentBold, AnsiReset, m.input)
 		hint := "\nEnter to start, Esc to cancel"
 		return center(m.width, m.height, prompt+hint)
 
@@ -242,8 +256,9 @@ func (m AppModel) View() string {
 		return m.test.View()
 	case screenResults:
 		s := m.stats
-		body := fmt.Sprintf("+------------------------------+\n|          RESULTS             |\n+------------------------------+\nTime: %.1fs\nWPM (gross): %.1f\nAccuracy: %.1f%% (%d/%d)\nWPM (net): %.1f\n\n[1] Restart  [esc] Quit",
-			s.DurationSec, s.GrossWPM, s.AccuracyPct, s.Correct, s.TotalTyped, s.NetWPM)
+		header := AccentBold + "+------------------------------+\n|          RESULTS             |\n+------------------------------+" + AnsiReset
+		body := fmt.Sprintf("%s\nTime: %.1fs\nWPM (gross): %.1f\nAccuracy: %.1f%% (%d/%d)\nWPM (net): %.1f\n\n[1] Restart  [esc] Quit",
+			header, s.DurationSec, s.GrossWPM, s.AccuracyPct, s.Correct, s.TotalTyped, s.NetWPM)
 		return center(m.width, m.height, body)
 	}
 	return ""

@@ -78,7 +78,7 @@ func (m TestModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		k := msg.String()
 
-		// Global quit
+		// quits anytime
 		if k == "ctrl+c" {
 			return m, tea.Quit
 		}
@@ -88,7 +88,7 @@ func (m TestModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 
-		// Start on first keystroke
+		// starts first keystroke or enter
 		if !m.started {
 			m.started = true
 			m.startTime = time.Now()
@@ -99,7 +99,7 @@ func (m TestModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 
-		// Backspace handling (support multiple terminals/platforms)
+		// backspace feature
 		if msg.Type == tea.KeyBackspace || k == "backspace" || k == "ctrl+h" {
 			if len(m.typed) > 0 {
 				// adjust stats for the char being removed
@@ -127,7 +127,6 @@ func (m TestModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 
-		// Insert typed rune(s). For simplicity, handle single-rune keys.
 		if r := msg.Runes; len(r) > 0 {
 			ch := r[0]
 			m.typed = append(m.typed, ch)
@@ -144,7 +143,7 @@ func (m TestModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.cursor++
 		}
 
-		// For untimed mode, auto-complete when all chars are typed
+		// auto-complete when all chars are typed for untimed
 		if m.duration == 0 && m.cursor >= len(m.target) {
 			m.done = true
 			m.endTime = time.Now()
@@ -155,20 +154,9 @@ func (m TestModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m TestModel) View() string {
-	const (
-		reset = "\x1b[0m"
-		dim   = "\x1b[2m"
-		bold  = "\x1b[1m"
-		green = "\x1b[32m"
-		red   = "\x1b[31m"
-		ul    = "\x1b[4m"
-		white = "\x1b[97m"
-	)
-
-	out := make([]byte, 0, len(m.target)*8)
+    out := make([]byte, 0, len(m.target)*8)
 
 	caretIdx := len(m.typed)
-	// optional soft wrapping based on width
 	maxW := m.width
 	if maxW <= 0 {
 		maxW = 80
@@ -196,27 +184,27 @@ func (m TestModel) View() string {
 		if i > 0 && newlineAt[i-1] {
 			out = append(out, '\n')
 		}
-		if i < len(m.typed) {
-			// already typed
-			if m.typed[i] == ch {
-				out = append(out, []byte(bold+green)...)
-				out = append(out, string(ch)...)
-				out = append(out, []byte(reset)...)
-			} else {
-				out = append(out, []byte(bold+red)...)
-				out = append(out, string(ch)...)
-				out = append(out, []byte(reset)...)
-			}
-		} else if i == caretIdx && !m.done {
-			out = append(out, []byte(bold+ul+white)...)
-			out = append(out, string(ch)...)
-			out = append(out, []byte(reset)...)
-		} else {
-			out = append(out, []byte(bold+dim+white)...)
-			out = append(out, string(ch)...)
-			out = append(out, []byte(reset)...)
-		}
-	}
+        if i < len(m.typed) {
+            // already typed
+            if m.typed[i] == ch {
+                out = append(out, []byte(AnsiBold+AnsiGreen)...)
+                out = append(out, string(ch)...)
+                out = append(out, []byte(AnsiReset)...)
+            } else {
+                out = append(out, []byte(AnsiBold+AnsiRed)...)
+                out = append(out, string(ch)...)
+                out = append(out, []byte(AnsiReset)...)
+            }
+        } else if i == caretIdx && !m.done {
+            out = append(out, []byte(AnsiBold+AnsiUnderline+Accent)...)
+            out = append(out, string(ch)...)
+            out = append(out, []byte(AnsiReset)...)
+        } else {
+            out = append(out, []byte(AnsiBold+AnsiDim+AnsiWhite)...)
+            out = append(out, string(ch)...)
+            out = append(out, []byte(AnsiReset)...)
+        }
+    }
 
 	// live stats line
 	elapsed := 0.0
@@ -254,7 +242,6 @@ func (m TestModel) View() string {
 	}
 	statLine := fmt.Sprintf("WPM %4.1f | ACC %5.1f%% | ERR %d | TIME %4.1fs", wpm, acc, m.incorrect, timeSec)
 
-	// Center per-line horizontally and vertically; show text and stats
 	raw := string(out)
 	parts := strings.Split(raw, "\n")
 	// add a blank line and the stats during the test
