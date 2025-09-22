@@ -90,7 +90,7 @@ func (m AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					// timer mode: generate enough words and start 15s test. change to selected time TODO!!
 					tgt, err := words.GenerateString(120)
 					if err != nil {
-						// minimal fallback target on error
+						//  fallback target on error
 						tgt = "the quick brown fox jumps over the lazy dog"
 					}
 					m.test = NewTestModelWith(tgt, 15*time.Second)
@@ -130,7 +130,7 @@ func (m AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if len(msg.Runes) > 0 {
 					r := msg.Runes[0]
 					if r >= '0' && r <= '9' {
-						if len(m.input) < 4 { // simple guard against huge values
+						if len(m.input) < 4 { 
 							m.input += string(r)
 						}
 					}

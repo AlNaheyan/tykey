@@ -1,11 +1,11 @@
-tykey
+## tykey
 
 minimal terminal typing test (monkeytype‑like) built with Go and Bubble Tea.
 [press enter and start typing away]
 
 Inspired by @trish on X.
 
-Quick start
+#### Quick start
 
 ```bash
 git clone https://github.com/alnaheyan/tykey.git
@@ -14,7 +14,7 @@ cd tykey
 go run .
 ```
 
-Optional: build a binary
+#### Optional: build a binary
 
 ```bash
 go build -o tykey

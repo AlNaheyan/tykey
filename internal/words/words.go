@@ -64,7 +64,7 @@ func Generate(n int) ([]string, error) {
 	return out, nil
 }
 
-// GenerateString returns a space-joined string of n random words.
+// returns a space-joined string of n random words.
 func GenerateString(n int) (string, error) {
 	ws, err := Generate(n)
 	if err != nil {
